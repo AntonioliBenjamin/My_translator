@@ -21,7 +21,7 @@ async function translate(text, language, sourceLanguage) {
   };
 
   const response = await axios.request(options);
-  return response.data.data.translations[0];
+  return response.data.data.translations[0].translatedText;
 }
 
 module.exports = translate;
