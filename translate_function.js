@@ -1,12 +1,10 @@
-require("dotenv").config();
 const axios = require("axios");
-const apiKeyTrad = process.env.API_KEY
+const apiKeyTrad = process.env.API_KEY;
 
-async function translate(text, language, sourceLanguage) {
+async function translate(text, targetLanguage) {
   const encodedParams = new URLSearchParams();
   encodedParams.append("q", text);
-  encodedParams.append("target", language);
-  encodedParams.append("source", sourceLanguage);
+  encodedParams.append("target", targetLanguage);
 
   const options = {
     method: "POST",
@@ -21,7 +19,7 @@ async function translate(text, language, sourceLanguage) {
   };
 
   const response = await axios.request(options);
-  return response.data.data.translations[0];
+  return response.data;
 }
 //ok
 module.exports = translate;
