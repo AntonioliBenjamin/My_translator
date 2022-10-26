@@ -1,4 +1,4 @@
-const {db} = require('./export')
+const {db} = require('./databases')
 
 function search(uuid, originalText) {
     const translations = db.get(uuid);

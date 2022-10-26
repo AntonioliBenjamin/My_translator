@@ -7,10 +7,11 @@ const port = Number(process.env.PORT);
 const JWT_SECRET = process.env.JWT_SECRET;
 const translate = require("./translate_function");
 const bcrypt = require("bcrypt");
-const { db, dbUser } = require("./export");
+const { db, dbUser } = require("./databases");
 const search = require("./seachFunction");
 const userAlreadyExist = require("./userAlreadyExistFunction");
 const jwt = require("jsonwebtoken");
+//const checkUserPassword = require('./checkUserPassword')
 
 app.use(express.json());
 
@@ -35,8 +36,8 @@ app.post("/user", (req, res) => {
     password: hash,
   };
 
-  const findUserExist = userAlreadyExist(body.email);
-  if (findUserExist) {
+  const isUserExist = userAlreadyExist(body.email);
+  if (isUserExist) {
     return res.status(400).send({
       message: "User already registered!",
     });
@@ -58,16 +59,18 @@ app.post("/signin", (req, res) => {
     password: req.body.password,
   };
   const user = dbUser.get(body.email);
-
-  if (body.email !== user.email)
+  const userPasswordHash = user.password;
+  const userPassword = body.password;
+  if (!user)
     return res.status(401).send({
       message: "bad email",
     });
-  bcrypt.compare(body.password, user.password, function (err, result) {
-    if (err) {
-      throw err;
-    }
-    if (result) {
+
+   async function checkUserPassword (password, passwordHash) {
+
+    const match = await bcrypt.compare(password, passwordHash)
+    
+    if (match) {
       const token = jwt.sign(
         {
           firstName: user.firstName,
@@ -77,10 +80,6 @@ app.post("/signin", (req, res) => {
         },
         JWT_SECRET
       );
-
-      dbUser.set(user.email, { user, token });
-  
-
       return res.send({
         token: token,
         email: user.email,
@@ -91,7 +90,10 @@ app.post("/signin", (req, res) => {
         message: "bad password",
       });
     }
-  });
+  }
+ 
+  checkUserPassword(userPassword, userPasswordHash);
+
 });
 
 app.use((req, res, next) => {
@@ -99,21 +101,14 @@ app.use((req, res, next) => {
     token: req.headers.jwt_token,
   };
 
-  const body = {
-    email: req.body.email,
-  };
-  //const decodedUserToken = jwt.verify(headers.token, JWT_SECRET);
+try {
+  const decodedUserToken = jwt.verify(headers.token, JWT_SECRET);
+  req.userData = decodedUserToken;
+  next()
+ } catch (err) {
+  res.status(401).end();
+ }
 
-  const user = dbUser.get(body.email);
-
-  if (headers.token === user.token) {
-    /*res.send({
-      userData: decodedUserToken,
-    });*/
-    next();
-  } else {
-    res.status(401).end();
-  }
 });
 
 app.post("/translate", async (req, res) => {
@@ -122,8 +117,8 @@ app.post("/translate", async (req, res) => {
     language: req.body.language,
     email: req.body.email,
   };
-
-  const userData = dbUser.get(body.email);
+  
+  const userData = req.userData;
   const userId = userData.uuid;
 
   const isAlreadyTranslated = search(userId, body.text);
