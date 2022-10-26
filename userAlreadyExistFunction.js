@@ -1,4 +1,4 @@
-const dbUser = require('./export')
+const {dbUser} = require('./export')
 
 function userAlreadyExist(email) {
     const user = dbUser.get(email);
