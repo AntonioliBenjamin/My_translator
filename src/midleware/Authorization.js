@@ -3,12 +3,12 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 function authorization(req, res, next)  {
     const headers = {
-      token: req.headers.jwt_token,
+      token: req.headers.access_token,
     };
 
     try {
       const decodedUserToken = jwt.verify(headers.token, JWT_SECRET);
-      req.userData = decodedUserToken;
+      req.user  = decodedUserToken;
       return next();
     } catch (err) {
       return res.sendStatus(401);

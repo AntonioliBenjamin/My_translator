@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const port = Number(process.env.PORT);
 const user = require('./src/routes/users')
-const authorization = require('./src/midleware/AuthorizationMiddleware')
+const authorization = require('./src/midleware/Authorization')
 const translate = require('./src/routes/translate')
 
 app.use(express.json());

@@ -7,7 +7,7 @@ const userAlreadyExist = require("../../functions/userAlreadyExistFunction");
 const jwt = require("jsonwebtoken");
 const checkUserPassword = require("../../functions/checkUserPassword");
 const JWT_SECRET = process.env.JWT_SECRET;
-const authorization = require('../midleware/AuthorizationMiddleware')
+const authorization = require('../midleware/Authorization')
 
 router.post("/", (req, res) => {
   const body = {
@@ -20,13 +20,13 @@ router.post("/", (req, res) => {
   const saltRounds = 10;
   const myPlaintextPassword = body.password;
   const hash = bcrypt.hashSync(myPlaintextPassword, saltRounds);
-  const userUuid = uuidv4();
+  const userId = uuidv4();
 
   const user = {
     firstName: body.firstName,
     lastName: body.lastName,
     email: body.email,
-    uuid: userUuid,
+    userId: userId,
     password: hash,
   };
 
@@ -43,7 +43,7 @@ router.post("/", (req, res) => {
     firstName: body.firstName,
     lastName: body.lastName,
     email: body.email,
-    uuid: userUuid,
+    userId: userId,
   });
 });
 
@@ -71,14 +71,14 @@ router.post("/signin", async (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      uuid: user.uuid,
+      userId: user.userId,
     },
     JWT_SECRET
   );
   return res.send({
     token: token,
     email: user.email,
-    userId: user.uuid,
+    userId: user.userId,
   });
 });
 
@@ -91,8 +91,8 @@ router.patch("/update", (req, res) => {
   };
 
   const user = {
-    email: req.userData.email,
-    uuid: req.userData.uuid,
+    email: req.user.email,
+    userId: req.user.userId,
   };
 
   const userDbInfo = dbUser.get(user.email);
@@ -102,7 +102,7 @@ router.patch("/update", (req, res) => {
     firstName: body.firstName,
     lastName: body.lastName,
     email: user.email,
-    uuid: user.uuid,
+    userId: user.userId,
     password: hashPassword,
   };
 
@@ -112,7 +112,7 @@ router.patch("/update", (req, res) => {
     firstName: body.firstName,
     lastName: body.lastName,
     email: user.email,
-    uuid: user.uuid,
+    userId: user.userId,
   });
 });
 
