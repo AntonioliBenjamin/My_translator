@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const search = require('../../functions/seachFunction');
-const translate = require('../../functions/translate_function');
+const search = require('../../functions/seach');
+const translate = require('../../functions/translate');
 const {db} = require('../../databases')
 
 router.post("/", async (req, res) => {
@@ -11,7 +11,7 @@ router.post("/", async (req, res) => {
       email: req.body.email,
     };
   
-    const userData = req.userData;
+    const userData = req.user ;
     const userId = userData.uuid;
   
     const isAlreadyTranslated = search(userId, body.text);
