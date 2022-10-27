@@ -1,29 +1,19 @@
 require("dotenv").config();
-const apiKeyTrad = process.env.API_KEY;
-const axios = require("axios");
 const express = require("express");
 const app = express();
-const port = 3000;
-const translate = require('./translate_function')
+const port = Number(process.env.PORT);
+const user = require('./src/routes/users')
+const authorization = require('./src/midleware/AuthorizationMiddleware')
+const translate = require('./src/routes/translate')
 
 app.use(express.json());
 
-app.post("/translate", async (req, res) => {
-  const body = req.body;
-  const params = {
-    text: body.text,
-    language: body.language,
-  };
-  const result = {
-    englishText: await translate(params.text, "en", params.language),
-    originalText: params.text,
-  };
-  return res.send(result);
-});
+app.use('/user', user);
+
+app.use(authorization);  
+
+app.use('/translate', translate);
 
 app.listen(port, () => {
-    console.log(`app listening on port ${port}`);
-  });
-
-  
-
+  console.log(`app listening ${port}`);
+});
