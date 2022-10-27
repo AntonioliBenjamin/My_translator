@@ -1,4 +1,4 @@
-const {dbUser} = require('./databases')
+const {dbUser} = require('../databases')
 
 function userAlreadyExist(email) {
     const user = dbUser.get(email);

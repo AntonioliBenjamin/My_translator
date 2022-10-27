@@ -1,5 +1,4 @@
-const {db} = require('./databases')
-
+const {db} = require('../databases')
 function search(uuid, originalText) {
     const translations = db.get(uuid);
     if (translations) {
